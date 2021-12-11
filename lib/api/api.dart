@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:machine_test/api/default_data.dart';
-import 'package:machine_test/models/data_model.dart';
 
 Future fetchAllProducts() async {
   final response = await http.get(Uri.parse(baseUrl +
@@ -32,11 +31,21 @@ Future fetchCategories() async {
     throw Exception('Failed to load album');
   }
 }
+
 Future fetchSubCategories(int parentId) async {
   final response = await http
       .get(Uri.parse(baseUrl + 'api/mobile/subcategories?parent_id=$parentId'));
   if (response.statusCode == 200) {
-    print(response.body);
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Failed to load album');
+  }
+}
+
+Future fetchSubCategoryProducts(int parentId, int categoryId) async {
+  final response = await http.get(Uri.parse(baseUrl +
+      'api/mobile/products?parent_category_id=$parentId&category_id=$categoryId&store_id=2'));
+  if (response.statusCode == 200) {
     return jsonDecode(response.body);
   } else {
     throw Exception('Failed to load album');

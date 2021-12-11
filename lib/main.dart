@@ -1,9 +1,5 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:machine_test/api/api.dart';
-import 'package:machine_test/api/default_data.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MaterialApp(debugShowCheckedModeBanner: false, home: MyApp()));
@@ -21,8 +17,7 @@ class _MyAppState extends State<MyApp> {
   Future? futureSubCategories;
   late Future futureProducts;
   bool subCategoryVisibility = false;
-  bool isCategorySelected = false;
-  var product;
+  bool showCategoryBasedProducts = false;
 
   @override
   void initState() {
@@ -31,20 +26,8 @@ class _MyAppState extends State<MyApp> {
     futureProducts = fetchAllProducts();
   }
 
-  Future<List> fetchProducts() async {
-    final response = await http.get(Uri.parse(baseUrl +
-        'api/mobile/products?parent_category_id=136&category_id=0&store_id=2&offset=0&limit=20&sort_by=sale_price&sort_type=DESC'));
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to load album');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    ScrollController _scrollController = ScrollController();
-    print(product);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -56,12 +39,12 @@ class _MyAppState extends State<MyApp> {
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black, size: 30),
+          icon: const Icon(Icons.menu, color: Colors.red, size: 30),
           onPressed: () {},
         ),
         actions: <Widget>[
           IconButton(
-            icon: const Icon(Icons.search, color: Colors.black, size: 30),
+            icon: const Icon(Icons.search, color: Colors.red, size: 30),
             onPressed: () {},
           ),
         ],
@@ -73,8 +56,8 @@ class _MyAppState extends State<MyApp> {
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  Icon(Icons.category, color: Colors.black, size: 30),
-                  Container(
+                  const Icon(Icons.category, color: Colors.black, size: 30),
+                  SizedBox(
                     height: 50,
                     width: MediaQuery.of(context).size.width - 46,
                     child: FutureBuilder(
@@ -82,7 +65,6 @@ class _MyAppState extends State<MyApp> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           List categories = snapshot.data as List;
-                          print(snapshot.data);
                           return ListView.builder(
                             scrollDirection: Axis.horizontal,
                             itemCount: categories.length,
@@ -92,7 +74,7 @@ class _MyAppState extends State<MyApp> {
                                 child: ChoiceChip(
                                   label: Text(
                                     categories[index]['name'],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white, fontSize: 16),
                                   ),
                                   backgroundColor: Colors.black,
@@ -102,6 +84,7 @@ class _MyAppState extends State<MyApp> {
                                       futureSubCategories = fetchSubCategories(
                                           categories[index]['id']);
                                       subCategoryVisibility = true;
+                                      showCategoryBasedProducts = false;
                                     });
                                   },
                                 ),
@@ -111,10 +94,10 @@ class _MyAppState extends State<MyApp> {
                         } else if (snapshot.hasError) {
                           return Text("${snapshot.error}");
                         }
-                        return Container(
+                        return SizedBox(
                             height: 50,
                             width: MediaQuery.of(context).size.width - 246,
-                            child: CircularProgressIndicator());
+                            child: const CircularProgressIndicator());
                       },
                     ),
                   ),
@@ -127,8 +110,8 @@ class _MyAppState extends State<MyApp> {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      Icon(Icons.category, color: Colors.black, size: 30),
-                      Container(
+                      const Icon(Icons.category, color: Colors.black, size: 30),
+                      SizedBox(
                         height: 50,
                         width: MediaQuery.of(context).size.width - 46,
                         child: FutureBuilder(
@@ -136,7 +119,6 @@ class _MyAppState extends State<MyApp> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               List subCategories = snapshot.data as List;
-                              print(snapshot.data);
                               return ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemCount: subCategories.length,
@@ -146,7 +128,7 @@ class _MyAppState extends State<MyApp> {
                                     child: ChoiceChip(
                                       label: Text(
                                         subCategories[index]['name'],
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: Colors.white, fontSize: 16),
                                       ),
                                       backgroundColor: Colors.black,
@@ -154,6 +136,9 @@ class _MyAppState extends State<MyApp> {
                                       onSelected: (bool selected) {
                                         setState(() {
                                           subCategoryVisibility = true;
+                                          // futureProducts = fetchSubCategories(
+                                          //     subCategories[index]['id']);
+                                          showCategoryBasedProducts = true;
                                         });
                                       },
                                     ),
@@ -163,61 +148,254 @@ class _MyAppState extends State<MyApp> {
                             } else if (snapshot.hasError) {
                               return Text("${snapshot.error}");
                             }
-                            return Container(
+                            return SizedBox(
                                 height: 50,
                                 width: MediaQuery.of(context).size.width - 246,
-                                child: CircularProgressIndicator());
+                                child: const CircularProgressIndicator());
                           },
                         ),
                       ),
                     ],
                   )),
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
-            //List products
-            FutureBuilder(
-              future: futureProducts,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List products = snapshot.data as List;
-                  return ListView.builder(
-                    controller: _scrollController,
-                    shrinkWrap: true,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: products.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListTile(
-                            title: Text(products[index]['name']),
-                            // leading: products[index]['images'].isNotEmpty
-                            //     ? Image.network(
-                            //         baseUrl+products[index]['images'][0]['image_url'].toString(),
-                            //         height: 50,
-                            //         width: 50,
-                            //       )
-                            //     : Image.network(
-                            //         'https://cdn.dribbble.com/users/1130356/screenshots/9452991/media/d162e27bb0470ec66439dae67852fb27.jpg?compress=1&resize=400x300',
-                            //         height: 50,
-                            //         width: 50,
-                            //       ),
-                            trailing: Text(products[index]['price']
-                                    ['sale_price']
-                                .toString()),
-                          ));
+            showCategoryBasedProducts
+                ? 
+                Container()
+                //FutureBuilder(
+                  //   future: futureSubCategories,
+                  //   builder: (context, snapshot) {
+                  //     if (snapshot.hasData) {
+                  //       List products = snapshot.data as List;
+                  //       return ListView.builder(
+                  //         shrinkWrap: true,
+                  //         physics: const NeverScrollableScrollPhysics(),
+                  //         itemCount: products.length,
+                  //         itemBuilder: (context, index) {
+                  //           return Padding(
+                  //               padding: const EdgeInsets.all(8.0),
+                  //               child: Column(
+                  //                 children: [
+                  //                   Padding(
+                  //                     padding: const EdgeInsets.all(8.0),
+                  //                     child: Row(
+                  //                       mainAxisAlignment:
+                  //                           MainAxisAlignment.spaceBetween,
+                  //                       children: [
+                  //                         // Container(
+                  //                         //   height: 100,
+                  //                         //   width: 100,
+                  //                         //   child: Image.network(
+                  //                         //     products[index]['image'],
+                  //                         //     fit: BoxFit.cover,
+                  //                         //   ),
+                  //                         // ),
+                  //                         // SizedBox(
+                  //                         //   width: 10,
+                  //                         // ),
+                  //                         Column(
+                  //                           crossAxisAlignment:
+                  //                               CrossAxisAlignment.start,
+                  //                           children: [
+                  //                             Text(
+                  //                               products[index]['name'],
+                  //                               style: const TextStyle(
+                  //                                   fontSize: 18,
+                  //                                   fontWeight:
+                  //                                       FontWeight.bold),
+                  //                             ),
+                  //                             const SizedBox(
+                  //                               height: 10,
+                  //                             ),
+                  //                             // Text(
+                  //                             //   products[index]['description'],
+                  //                             //   style: TextStyle(
+                  //                             //       fontSize: 16,
+                  //                             //       fontWeight: FontWeight.w400),
+                  //                             // ),
+                  //                             // SizedBox(
+                  //                             //   height: 10,
+                  //                             // ),
+                  //                             Text(
+                  //                               '${products[index]['sort_price']} SAR',
+                  //                               style: const TextStyle(
+                  //                                   fontSize: 16,
+                  //                                   color: Colors.green,
+                  //                                   fontWeight:
+                  //                                       FontWeight.w500),
+                  //                             ),
+                  //                           ],
+                  //                         ),
+                  //                         Column(
+                  //                           children: [
+                  //                             IconButton(
+                  //                                 onPressed: () {},
+                  //                                 icon: const Icon(Icons
+                  //                                     .favorite_border_sharp)),
+                  //                             CircleAvatar(
+                  //                               backgroundColor: Colors.green,
+                  //                               child: IconButton(
+                  //                                   onPressed: () {},
+                  //                                   icon:
+                  //                                       const Icon(Icons.add)),
+                  //                             ),
+                  //                           ],
+                  //                         )
+                  //                       ],
+                  //                     ),
+                  //                   ),
+                  //                   const Divider(
+                  //                     thickness: 1,
+                  //                   ),
+                  //                 ],
+                  //               )
+                  //               // child: ListTile(
+                  //               //   title: Text(products[index]['name']),
+                  //               //   // leading: products[index]['images'].isNotEmpty
+                  //               //   //     ? Image.network(
+                  //               //   //         baseUrl+products[index]['images'][0]['image_url'].toString(),
+                  //               //   //         height: 50,
+                  //               //   //         width: 50,
+                  //               //   //       )
+                  //               //   //     : Image.network(
+                  //               //   //         'https://cdn.dribbble.com/users/1130356/screenshots/9452991/media/d162e27bb0470ec66439dae67852fb27.jpg?compress=1&resize=400x300',
+                  //               //   //         height: 50,
+                  //               //   //         width: 50,
+                  //               //   //       ),
+                  //               //   trailing: Text(products[index]['price']
+                  //               //           ['sale_price']
+                  //               //       .toString()),
+                  //               // )
+                  //               );
+                  //         },
+                  //       );
+                  //     } else if (snapshot.hasError) {
+                  //       return Text("${snapshot.error}");
+                  //     }
+                  //     return SizedBox(
+                  //         height: 50,
+                  //         width: MediaQuery.of(context).size.width - 246,
+                  //         child: const CircularProgressIndicator());
+                  //   },
+                  // )
+                : FutureBuilder(
+                    future: futureProducts,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        List products = snapshot.data as List;
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: products.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Container(
+                                          //   height: 100,
+                                          //   width: 100,
+                                          //   child: Image.network(
+                                          //     products[index]['image'],
+                                          //     fit: BoxFit.cover,
+                                          //   ),
+                                          // ),
+                                          // SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                products[index]['name'],
+                                                style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              // Text(
+                                              //   products[index]['description'],
+                                              //   style: TextStyle(
+                                              //       fontSize: 16,
+                                              //       fontWeight: FontWeight.w400),
+                                              // ),
+                                              // SizedBox(
+                                              //   height: 10,
+                                              // ),
+                                              Text(
+                                                '${products[index]['price']['sale_price']} SAR',
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.green,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            children: [
+                                              IconButton(
+                                                  onPressed: () {},
+                                                  icon: const Icon(Icons
+                                                      .favorite_border_sharp)),
+                                              CircleAvatar(
+                                                backgroundColor: Colors.green,
+                                                child: IconButton(
+                                                    onPressed: () {},
+                                                    icon:
+                                                        const Icon(Icons.add)),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(
+                                      thickness: 1,
+                                    ),
+                                  ],
+                                )
+                                // child: ListTile(
+                                //   title: Text(products[index]['name']),
+                                //   // leading: products[index]['images'].isNotEmpty
+                                //   //     ? Image.network(
+                                //   //         baseUrl+products[index]['images'][0]['image_url'].toString(),
+                                //   //         height: 50,
+                                //   //         width: 50,
+                                //   //       )
+                                //   //     : Image.network(
+                                //   //         'https://cdn.dribbble.com/users/1130356/screenshots/9452991/media/d162e27bb0470ec66439dae67852fb27.jpg?compress=1&resize=400x300',
+                                //   //         height: 50,
+                                //   //         width: 50,
+                                //   //       ),
+                                //   trailing: Text(products[index]['price']
+                                //           ['sale_price']
+                                //       .toString()),
+                                // )
+                                );
+                          },
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text("${snapshot.error}");
+                      }
+                      return SizedBox(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width - 246,
+                          child: const CircularProgressIndicator());
                     },
-                  );
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-                return Container(
-                    height: 50,
-                    width: MediaQuery.of(context).size.width - 246,
-                    child: CircularProgressIndicator());
-              },
-            ),
+                  ),
           ],
         ),
       ),
