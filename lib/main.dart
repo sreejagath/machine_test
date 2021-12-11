@@ -16,14 +16,38 @@ class _MyAppState extends State<MyApp> {
   late Future futureCategories;
   Future? futureSubCategories;
   late Future futureProducts;
+  Future? futuresubCategoryProducts;
   bool subCategoryVisibility = false;
   bool showCategoryBasedProducts = false;
+  int? categoryId;
+  int? subCategoryId;
+  int currentMax = 20;
+  int limit = 20;
+
+  ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     futureCategories = fetchCategories();
     futureProducts = fetchAllProducts();
+    // scrollController.addListener(() {
+    //   if (scrollController.position.pixels ==
+    //       scrollController.position.maxScrollExtent) {
+    //     getMoreData();
+    //   }
+    // });
+  }
+
+  getMoreData(int listMax) {
+    for (int i = 0; i < listMax; i++) {
+      if(limit<listMax){
+        limit = limit + 20;
+      }
+      setState(() {
+        
+      });
+    }
   }
 
   @override
@@ -50,6 +74,7 @@ class _MyAppState extends State<MyApp> {
         ],
       ),
       body: SingleChildScrollView(
+        controller: scrollController,
         child: Column(
           children: <Widget>[
             Padding(
@@ -85,6 +110,7 @@ class _MyAppState extends State<MyApp> {
                                           categories[index]['id']);
                                       subCategoryVisibility = true;
                                       showCategoryBasedProducts = false;
+                                      categoryId = categories[index]['id'];
                                     });
                                   },
                                 ),
@@ -139,6 +165,11 @@ class _MyAppState extends State<MyApp> {
                                           // futureProducts = fetchSubCategories(
                                           //     subCategories[index]['id']);
                                           showCategoryBasedProducts = true;
+                                          subCategoryId =
+                                              subCategories[index]['id'];
+                                          futuresubCategoryProducts =
+                                              fetchSubCategoryProducts(
+                                                  categoryId!, subCategoryId!);
                                         });
                                       },
                                     ),
@@ -162,126 +193,8 @@ class _MyAppState extends State<MyApp> {
               height: 20,
             ),
             showCategoryBasedProducts
-                ? 
-                Container()
-                //FutureBuilder(
-                  //   future: futureSubCategories,
-                  //   builder: (context, snapshot) {
-                  //     if (snapshot.hasData) {
-                  //       List products = snapshot.data as List;
-                  //       return ListView.builder(
-                  //         shrinkWrap: true,
-                  //         physics: const NeverScrollableScrollPhysics(),
-                  //         itemCount: products.length,
-                  //         itemBuilder: (context, index) {
-                  //           return Padding(
-                  //               padding: const EdgeInsets.all(8.0),
-                  //               child: Column(
-                  //                 children: [
-                  //                   Padding(
-                  //                     padding: const EdgeInsets.all(8.0),
-                  //                     child: Row(
-                  //                       mainAxisAlignment:
-                  //                           MainAxisAlignment.spaceBetween,
-                  //                       children: [
-                  //                         // Container(
-                  //                         //   height: 100,
-                  //                         //   width: 100,
-                  //                         //   child: Image.network(
-                  //                         //     products[index]['image'],
-                  //                         //     fit: BoxFit.cover,
-                  //                         //   ),
-                  //                         // ),
-                  //                         // SizedBox(
-                  //                         //   width: 10,
-                  //                         // ),
-                  //                         Column(
-                  //                           crossAxisAlignment:
-                  //                               CrossAxisAlignment.start,
-                  //                           children: [
-                  //                             Text(
-                  //                               products[index]['name'],
-                  //                               style: const TextStyle(
-                  //                                   fontSize: 18,
-                  //                                   fontWeight:
-                  //                                       FontWeight.bold),
-                  //                             ),
-                  //                             const SizedBox(
-                  //                               height: 10,
-                  //                             ),
-                  //                             // Text(
-                  //                             //   products[index]['description'],
-                  //                             //   style: TextStyle(
-                  //                             //       fontSize: 16,
-                  //                             //       fontWeight: FontWeight.w400),
-                  //                             // ),
-                  //                             // SizedBox(
-                  //                             //   height: 10,
-                  //                             // ),
-                  //                             Text(
-                  //                               '${products[index]['sort_price']} SAR',
-                  //                               style: const TextStyle(
-                  //                                   fontSize: 16,
-                  //                                   color: Colors.green,
-                  //                                   fontWeight:
-                  //                                       FontWeight.w500),
-                  //                             ),
-                  //                           ],
-                  //                         ),
-                  //                         Column(
-                  //                           children: [
-                  //                             IconButton(
-                  //                                 onPressed: () {},
-                  //                                 icon: const Icon(Icons
-                  //                                     .favorite_border_sharp)),
-                  //                             CircleAvatar(
-                  //                               backgroundColor: Colors.green,
-                  //                               child: IconButton(
-                  //                                   onPressed: () {},
-                  //                                   icon:
-                  //                                       const Icon(Icons.add)),
-                  //                             ),
-                  //                           ],
-                  //                         )
-                  //                       ],
-                  //                     ),
-                  //                   ),
-                  //                   const Divider(
-                  //                     thickness: 1,
-                  //                   ),
-                  //                 ],
-                  //               )
-                  //               // child: ListTile(
-                  //               //   title: Text(products[index]['name']),
-                  //               //   // leading: products[index]['images'].isNotEmpty
-                  //               //   //     ? Image.network(
-                  //               //   //         baseUrl+products[index]['images'][0]['image_url'].toString(),
-                  //               //   //         height: 50,
-                  //               //   //         width: 50,
-                  //               //   //       )
-                  //               //   //     : Image.network(
-                  //               //   //         'https://cdn.dribbble.com/users/1130356/screenshots/9452991/media/d162e27bb0470ec66439dae67852fb27.jpg?compress=1&resize=400x300',
-                  //               //   //         height: 50,
-                  //               //   //         width: 50,
-                  //               //   //       ),
-                  //               //   trailing: Text(products[index]['price']
-                  //               //           ['sale_price']
-                  //               //       .toString()),
-                  //               // )
-                  //               );
-                  //         },
-                  //       );
-                  //     } else if (snapshot.hasError) {
-                  //       return Text("${snapshot.error}");
-                  //     }
-                  //     return SizedBox(
-                  //         height: 50,
-                  //         width: MediaQuery.of(context).size.width - 246,
-                  //         child: const CircularProgressIndicator());
-                  //   },
-                  // )
-                : FutureBuilder(
-                    future: futureProducts,
+                ? FutureBuilder(
+                    future: futuresubCategoryProducts,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         List products = snapshot.data as List;
@@ -290,6 +203,131 @@ class _MyAppState extends State<MyApp> {
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: products.length,
                           itemBuilder: (context, index) {
+                            return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Container(
+                                          //   height: 100,
+                                          //   width: 100,
+                                          //   child: Image.network(
+                                          //     products[index]['image'],
+                                          //     fit: BoxFit.cover,
+                                          //   ),
+                                          // ),
+                                          // SizedBox(
+                                          //   width: 10,
+                                          // ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                products[index]['name'],
+                                                style: const TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              // Text(
+                                              //   products[index]['description'],
+                                              //   style: TextStyle(
+                                              //       fontSize: 16,
+                                              //       fontWeight: FontWeight.w400),
+                                              // ),
+                                              // SizedBox(
+                                              //   height: 10,
+                                              // ),
+                                              Text(
+                                                '${products[index]['sort_price']} SAR',
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.green,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            children: [
+                                              IconButton(
+                                                  onPressed: () {},
+                                                  icon: const Icon(Icons
+                                                      .favorite_border_sharp)),
+                                              CircleAvatar(
+                                                backgroundColor: Colors.green,
+                                                child: IconButton(
+                                                    onPressed: () {},
+                                                    icon:
+                                                        const Icon(Icons.add)),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(
+                                      thickness: 1,
+                                    ),
+                                  ],
+                                )
+                                // child: ListTile(
+                                //   title: Text(products[index]['name']),
+                                //   // leading: products[index]['images'].isNotEmpty
+                                //   //     ? Image.network(
+                                //   //         baseUrl+products[index]['images'][0]['image_url'].toString(),
+                                //   //         height: 50,
+                                //   //         width: 50,
+                                //   //       )
+                                //   //     : Image.network(
+                                //   //         'https://cdn.dribbble.com/users/1130356/screenshots/9452991/media/d162e27bb0470ec66439dae67852fb27.jpg?compress=1&resize=400x300',
+                                //   //         height: 50,
+                                //   //         width: 50,
+                                //   //       ),
+                                //   trailing: Text(products[index]['price']
+                                //           ['sale_price']
+                                //       .toString()),
+                                // )
+                                );
+                          },
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text("${snapshot.error}");
+                      }
+                      return SizedBox(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width - 246,
+                          child: const CircularProgressIndicator());
+                    },
+                  )
+                : FutureBuilder(
+                    future: futureProducts,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        List products = snapshot.data as List;
+                        scrollController.addListener(() {
+
+                          if (scrollController.position.pixels ==
+                              scrollController.position.maxScrollExtent) {
+                            getMoreData(products.length);
+                            print('end');
+                          }
+                        });
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: limit,
+                          itemBuilder: (context, index) {
+                            
                             return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
