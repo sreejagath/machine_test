@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:machine_test/api/default_data.dart';
 
-Future fetchAllProducts() async {
+Future fetchAllProducts(int limit) async {
   final response = await http.get(Uri.parse(baseUrl +
-      'api/mobile/products?parent_category_id=136&category_id=0&store_id=2&offset=0&sort_by=sale_price&sort_type=DESC'));
+      'api/mobile/products?parent_category_id=136&category_id=0&store_id=2&offset=0&limit=$limit&sort_by=sale_price&sort_type=DESC'));
   if (response.statusCode == 200) {
     return jsonDecode(response.body);
   } else {
@@ -45,6 +45,16 @@ Future fetchSubCategories(int parentId) async {
 Future fetchSubCategoryProducts(int parentId, int categoryId) async {
   final response = await http.get(Uri.parse(baseUrl +
       'api/mobile/products?parent_category_id=$parentId&category_id=$categoryId&store_id=2'));
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Failed to load album');
+  }
+}
+
+Future<List> allProducts()async{
+  final response = await http.get(Uri.parse(baseUrl +
+      'api/mobile/products?parent_category_id=136&category_id=0&store_id=2&offset=0&limit=20&sort_by=sale_price&sort_type=DESC'));
   if (response.statusCode == 200) {
     return jsonDecode(response.body);
   } else {

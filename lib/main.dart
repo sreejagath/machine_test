@@ -30,25 +30,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     futureCategories = fetchCategories();
-    futureProducts = fetchAllProducts();
-    // scrollController.addListener(() {
-    //   if (scrollController.position.pixels ==
-    //       scrollController.position.maxScrollExtent) {
-    //     getMoreData();
-    //   }
-    // });
+    futureProducts = fetchAllProducts(limit);
+    
   }
 
-  getMoreData(int listMax) {
-    for (int i = 0; i < listMax; i++) {
-      if(limit<listMax){
-        limit = limit + 20;
-      }
-      setState(() {
-        
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,13 +60,14 @@ class _MyAppState extends State<MyApp> {
       ),
       body: SingleChildScrollView(
         controller: scrollController,
+        physics: BouncingScrollPhysics(),
         child: Column(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  const Icon(Icons.category, color: Colors.black, size: 30),
+                  const Icon(Icons.category, color: Colors.redAccent, size: 30),
                   SizedBox(
                     height: 50,
                     width: MediaQuery.of(context).size.width - 46,
@@ -136,7 +122,7 @@ class _MyAppState extends State<MyApp> {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      const Icon(Icons.category, color: Colors.black, size: 30),
+                      const Icon(Icons.category, color: Colors.red, size: 30),
                       SizedBox(
                         height: 50,
                         width: MediaQuery.of(context).size.width - 46,
@@ -162,8 +148,6 @@ class _MyAppState extends State<MyApp> {
                                       onSelected: (bool selected) {
                                         setState(() {
                                           subCategoryVisibility = true;
-                                          // futureProducts = fetchSubCategories(
-                                          //     subCategories[index]['id']);
                                           showCategoryBasedProducts = true;
                                           subCategoryId =
                                               subCategories[index]['id'];
@@ -213,17 +197,6 @@ class _MyAppState extends State<MyApp> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          // Container(
-                                          //   height: 100,
-                                          //   width: 100,
-                                          //   child: Image.network(
-                                          //     products[index]['image'],
-                                          //     fit: BoxFit.cover,
-                                          //   ),
-                                          // ),
-                                          // SizedBox(
-                                          //   width: 10,
-                                          // ),
                                           Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -238,15 +211,6 @@ class _MyAppState extends State<MyApp> {
                                               const SizedBox(
                                                 height: 10,
                                               ),
-                                              // Text(
-                                              //   products[index]['description'],
-                                              //   style: TextStyle(
-                                              //       fontSize: 16,
-                                              //       fontWeight: FontWeight.w400),
-                                              // ),
-                                              // SizedBox(
-                                              //   height: 10,
-                                              // ),
                                               Text(
                                                 '${products[index]['sort_price']} SAR',
                                                 style: const TextStyle(
@@ -280,23 +244,7 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                   ],
                                 )
-                                // child: ListTile(
-                                //   title: Text(products[index]['name']),
-                                //   // leading: products[index]['images'].isNotEmpty
-                                //   //     ? Image.network(
-                                //   //         baseUrl+products[index]['images'][0]['image_url'].toString(),
-                                //   //         height: 50,
-                                //   //         width: 50,
-                                //   //       )
-                                //   //     : Image.network(
-                                //   //         'https://cdn.dribbble.com/users/1130356/screenshots/9452991/media/d162e27bb0470ec66439dae67852fb27.jpg?compress=1&resize=400x300',
-                                //   //         height: 50,
-                                //   //         width: 50,
-                                //   //       ),
-                                //   trailing: Text(products[index]['price']
-                                //           ['sale_price']
-                                //       .toString()),
-                                // )
+                                
                                 );
                           },
                         );
@@ -314,20 +262,12 @@ class _MyAppState extends State<MyApp> {
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
                         List products = snapshot.data as List;
-                        scrollController.addListener(() {
-
-                          if (scrollController.position.pixels ==
-                              scrollController.position.maxScrollExtent) {
-                            getMoreData(products.length);
-                            print('end');
-                          }
-                        });
+                        
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: limit,
                           itemBuilder: (context, index) {
-                            
                             return Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
@@ -338,17 +278,6 @@ class _MyAppState extends State<MyApp> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          // Container(
-                                          //   height: 100,
-                                          //   width: 100,
-                                          //   child: Image.network(
-                                          //     products[index]['image'],
-                                          //     fit: BoxFit.cover,
-                                          //   ),
-                                          // ),
-                                          // SizedBox(
-                                          //   width: 10,
-                                          // ),
                                           Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -363,15 +292,6 @@ class _MyAppState extends State<MyApp> {
                                               const SizedBox(
                                                 height: 10,
                                               ),
-                                              // Text(
-                                              //   products[index]['description'],
-                                              //   style: TextStyle(
-                                              //       fontSize: 16,
-                                              //       fontWeight: FontWeight.w400),
-                                              // ),
-                                              // SizedBox(
-                                              //   height: 10,
-                                              // ),
                                               Text(
                                                 '${products[index]['price']['sale_price']} SAR',
                                                 style: const TextStyle(
@@ -405,23 +325,6 @@ class _MyAppState extends State<MyApp> {
                                     ),
                                   ],
                                 )
-                                // child: ListTile(
-                                //   title: Text(products[index]['name']),
-                                //   // leading: products[index]['images'].isNotEmpty
-                                //   //     ? Image.network(
-                                //   //         baseUrl+products[index]['images'][0]['image_url'].toString(),
-                                //   //         height: 50,
-                                //   //         width: 50,
-                                //   //       )
-                                //   //     : Image.network(
-                                //   //         'https://cdn.dribbble.com/users/1130356/screenshots/9452991/media/d162e27bb0470ec66439dae67852fb27.jpg?compress=1&resize=400x300',
-                                //   //         height: 50,
-                                //   //         width: 50,
-                                //   //       ),
-                                //   trailing: Text(products[index]['price']
-                                //           ['sale_price']
-                                //       .toString()),
-                                // )
                                 );
                           },
                         );
